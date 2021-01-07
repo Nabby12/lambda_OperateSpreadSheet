@@ -15,24 +15,36 @@ Resources:
         - AWSLambdaBasicExecutionRole
       Environment:
         Variables:
-          CREDENTIALS: 
-            Ref: Credentials
-          TOKEN_PATH: 
-            Ref: TokenPath
+          CREDENTIALS_CLIENT_ID: 
+            Ref: CredentialsClientId
+          CREDENTIALS_CLIENT_SECRET: 
+            Ref: CredentialsClientSecret
+          CREDENTIALS_REDIRECT_URI: 
+            Ref: CredentialsRedirectUri
+          REFRESH_TOKEN: 
+            Ref: RefreshToken
           SPREADSHEET_ID: 
             Ref: SpreadsheetId
           SPREADSHEET_NAME: 
             Ref: SpreadsheetName
+          SPREADSHEET_RANGE: 
+            Ref: SpreadsheetRange
           SPREADSHEET_START_RANGE: 
             Ref: SpreadsheetStartRange
 Parameters:
-  Credentials:
+  CredentialsClientId:
     Type: String
-  TokenPath:
+  CredentialsClientSecret:
+    Type: String
+  CredentialsRedirectUri:
+    Type: String
+  RefreshToken:
     Type: String
   SpreadsheetId:
     Type: String
   SpreadsheetName:
+    Type: String
+  SpreadsheetRange:
     Type: String
   SpreadsheetStartRange:
     Type: String
