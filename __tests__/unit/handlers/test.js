@@ -12,6 +12,12 @@ const {google} = require('googleapis');
 
 describe('Test for index', function () {
     let sandbox;
+    let oAuth2ClientStub;
+    let setCredentialsStub;
+    let getStub;
+
+
+
     let proxyIndex;
     let googleStub;
     let googleMock;
@@ -44,8 +50,6 @@ describe('Test for index', function () {
     };
 
     const index = require('../../../src/handlers/index.js');
-    let OAuth2Mock
-    let OAuth2Stub
     beforeEach(() => {
         sandbox = sinon.createSandbox();
         sandbox.stub(process, 'env').value({
@@ -59,7 +63,7 @@ describe('Test for index', function () {
             SPREADSHEET_START_RANGE: 'dummy startRange',
         });
 
-        let googleMockClass = class {
+        googleMockClass = class {
             auth() {
                 return {
                     promise: () => {}
@@ -101,7 +105,7 @@ describe('Test for index', function () {
                 }
             }
         };
-        let googleMock = new googleMockClass();
+        googleMock = new googleMockClass();
 
         googleStub = {};
 
@@ -143,28 +147,40 @@ describe('Test for index', function () {
         // googleStub.values = sandbox.stub(googleMock, 'values');
         // googleStub.get = sandbox.stub(googleMock, 'get');
         // googleStub.update = sandbox.stub(googleMock, 'update');
-
-        OAuth2Mock = new google.auth.OAuth2(
-            // process.env.CREDENTIALS_CLIENT_ID,
-            // process.env.CREDENTIALS_CLIENT_SECRET,
-            // process.env.CREDENTIALS_REDIRECT_URI
-        ); 
-        googleStub = sinon
-            .mock(new google.auth.OAuth2)
-            .expects('setCredentials')
-            .once()
-            .resolves({});
-
-        googleStub = sandbox.stub(google.auth, 'OAuth2').returns(googleStub);
+        
+        // OAuth2Mock = new google.auth.OAuth2(
+        //     // process.env.CREDENTIALS_CLIENT_ID,
+        //     // process.env.CREDENTIALS_CLIENT_SECRET,
+        //     // process.env.CREDENTIALS_REDIRECT_URI
+        // ); 
+        // googleStub = sinon
+        //     .mock(new google.auth.OAuth2)
+        //     .expects('setCredentials')
+        //     .once()
+        //     .resolves({setCredentials: () => {}});
+            
+            oAuth2ClientStub = sandbox.stub(google.auth, 'OAuth2');
+            setCredentialsStub = sandbox.stub(googleMock, 'setCredentials');
+            getStub = sandbox.stub(googleMock, 'get');
 
         // googleStub = sandbox.stub(google, 'sheets').returns({test:1});
         
         proxyIndex = proxyquire('../../../src/handlers/index.js', {
-            'googleapis': googleStub,
+            'googleapis': {
+                auth: {
+                    OAuth2: {
+                        setCredentials: setCredentialsStub
+                    }
+                },
+                sheets: {
+                    spreadsheets: {
+                        values: {
+                            get: getStub
+                        }
+                    }
+                }
+            }
         });
-        // proxyIndex = proxyquire('../../../src/handlers/index.js', {
-        //     'googleapis': googleMock,
-        // });
     });
     afterEach(() => {
         sandbox.restore();
@@ -206,8 +222,17 @@ describe('Test for index', function () {
             'value2',
         ];
 
+        oAuth2ClientStub.returns(googleMock);
+        console.log(googleMock);
+        setCredentialsStub.withArgs({'refresh_token': process.env.REFRESH_TOKEN}).returns({promise: () => {
+            return Promise.resolve('test');
+        }});
+        getStub.withArgs(dummyGetParams).returns({promise: () => {
+            return Promise.resolve('test');
+        }});
+
         const expected = { isOk: true, content: getValues };
-        return expect(index.handler(getCellsValueEvent)).to.be.fulfilled.then(result => {
+        return expect(proxyIndex.handler(getCellsValueEvent)).to.be.fulfilled.then(result => {
             console.log('----result----');
             console.log(result);
             console.log(expected);
