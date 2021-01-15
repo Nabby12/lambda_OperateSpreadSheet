@@ -100,17 +100,16 @@ describe('Test for index', function () {
     });
 
     it('getCellsVallueが成功した場合、成功ステータスが返る', async () => {
-        const dummyGetResponse = {
-            data: {
-                values: [['value1', 'value2']]
-            }
-        }
-        getStub.returns(dummyGetResponse);
-
         const getValues = [
             'value1',
             'value2',
         ];
+        const dummyGetResponse = {
+            data: {
+                values: [getValues]
+            }
+        }
+        getStub.returns(dummyGetResponse);
 
         const expected = { isOk: true, content: getValues };
         return expect(index.handler(getCellsValueEvent)).to.be.fulfilled.then(result => {
