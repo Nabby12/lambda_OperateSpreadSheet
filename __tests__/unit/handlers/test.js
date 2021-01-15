@@ -57,17 +57,21 @@ describe('Test for index', function () {
         }
         getStub.returns(dummyGetResponse);
         expect(index.handler(getCellsValueEvent)).to.be.fulfilled.then(result => {
-            console.log(sinon.assert.calledOnce(setCredentialsStub));
-            console.log(sinon.assert.calledOnce(getStub));
-            console.log(sinon.assert.notCalled(updateStub));
+            sinon.assert.calledOnce(oAuth2ClientStub);
+            sinon.assert.calledOnce(setCredentialsStub);
+            sinon.assert.calledOnce(sheetsStub);
+            sinon.assert.calledOnce(getStub);
+            sinon.assert.notCalled(updateStub);
         });
 
         const dummyUpdateResponse = {statusText: 'OK'}
         updateStub.returns(dummyUpdateResponse);
         expect(index.handler(updateCellsValueEvent)).to.be.fulfilled.then(result => {
-            console.log(sinon.assert.calledOnce(setCredentialsStub));
-            console.log(sinon.assert.notCalled(getStub));
-            console.log(sinon.assert.calledOnce(updateStub));
+            sinon.assert.calledOnce(oAuth2ClientStub);
+            sinon.assert.calledOnce(setCredentialsStub);
+            sinon.assert.calledOnce(sheetsStub);
+            sinon.assert.notCalled(getStub);
+            sinon.assert.calledOnce(updateStub);
         });
     });
 
@@ -78,7 +82,9 @@ describe('Test for index', function () {
         const expected = { isOk: false, content: errorMessage };
 
         return expect(index.handler(getCellsValueEvent)).to.be.fulfilled.then(result => {
+            sinon.assert.calledOnce(oAuth2ClientStub);
             sinon.assert.calledOnce(setCredentialsStub);
+            sinon.assert.notCalled(sheetsStub);
             sinon.assert.notCalled(getStub);
             sinon.assert.notCalled(updateStub);
             assert.deepEqual(result, expected);
@@ -92,7 +98,9 @@ describe('Test for index', function () {
 
         const expected = { isOk: false, content: errorMessage };
         return expect(index.handler(getCellsValueEvent)).to.be.fulfilled.then(result => {
+            sinon.assert.calledOnce(oAuth2ClientStub);
             sinon.assert.calledOnce(setCredentialsStub);
+            sinon.assert.calledOnce(sheetsStub);
             sinon.assert.calledOnce(getStub);
             sinon.assert.notCalled(updateStub);
             assert.deepEqual(result, expected);
@@ -113,7 +121,9 @@ describe('Test for index', function () {
 
         const expected = { isOk: true, content: getValues };
         return expect(index.handler(getCellsValueEvent)).to.be.fulfilled.then(result => {
+            sinon.assert.calledOnce(oAuth2ClientStub);
             sinon.assert.calledOnce(setCredentialsStub);
+            sinon.assert.calledOnce(sheetsStub);
             sinon.assert.calledOnce(getStub);
             sinon.assert.notCalled(updateStub);
             assert.deepEqual(result, expected);
@@ -128,7 +138,9 @@ describe('Test for index', function () {
 
         const expected = { isOk: false, content: errorMessage };
         return expect(index.handler(updateCellsValueEvent)).to.be.fulfilled.then(result => {
+            sinon.assert.calledOnce(oAuth2ClientStub);
             sinon.assert.calledOnce(setCredentialsStub);
+            sinon.assert.calledOnce(sheetsStub);
             sinon.assert.notCalled(getStub);
             sinon.assert.calledOnce(updateStub);
             assert.deepEqual(result, expected);
@@ -143,7 +155,9 @@ describe('Test for index', function () {
 
         const expected = { isOk: true, content: updateStatus };
         return expect(index.handler(updateCellsValueEvent)).to.be.fulfilled.then(result => {
+            sinon.assert.calledOnce(oAuth2ClientStub);
             sinon.assert.calledOnce(setCredentialsStub);
+            sinon.assert.calledOnce(sheetsStub);
             sinon.assert.notCalled(getStub);
             sinon.assert.calledOnce(updateStub);
             assert.deepEqual(result, expected);
