@@ -14,27 +14,15 @@ const {google} = require('googleapis');
 exports.handler = async (event) => {
   let callbackFunction;
   if (event.callback){
-    callbackFunction = (event.callback === 'getCellsValue') ? getCellsValue : updateCells;
+    callbackFunction = (event.callback === 'getCellsValue') ? getCellsValue : updateCellsValue;
   } else {
-    callbackFunction = updateCells;
+    callbackFunction = updateCellsValue;
   };
 
-  let result;
-  try{
-    let content = await authorize(callbackFunction);
-    result = {
-        'isOk': !(typeof(content) === 'string'),
-        'content': content
-    };
-    console.log('authorize succeeded.');
-  } catch(err) {
-    const errorMessage = 'authorize failed.';
-    result = {
-        'isOk': false,
-        'content': errorMessage
-    };
-    console.log(errorMessage);
-    console.log(err);
+  let content = await authorize(callbackFunction);
+  let result = {
+      'isOk': !(typeof(content) === 'string'),
+      'content': content
   };
 
   return result;
@@ -52,6 +40,7 @@ async function authorize(callback) {
     oAuth2Client.setCredentials({
         'refresh_token': REFRESH_TOKEN
     });
+
     result = await callback(oAuth2Client);
     console.log('oAuth succeeded.');
   } catch(err) {
@@ -92,7 +81,7 @@ async function getCellsValue(auth) {
   return result;
 }
 
-async function updateCells(auth) {
+async function updateCellsValue(auth) {
   const sheets = google.sheets({version: 'v4', auth});
   const inputValues = {
     values: [
